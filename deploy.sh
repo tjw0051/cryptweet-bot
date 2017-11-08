@@ -1,0 +1,7 @@
+export DISCORD_TOKEN=
+export TWITTER_CONSUMER_KEY=
+export TWITTER_CONSUMER_SECRET=
+export TWITTER_TOKEN_KEY=
+export TWITTER_TOKEN_SECRET=
+
+docker-compose up -d
