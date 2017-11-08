@@ -1,4 +1,5 @@
-#Cryptweet Bot
+![TypeScript](http://vectorlogo4u.com/wp-content/uploads/2016/06/twitter-icon-vector.png)
+# Cryptweet Bot
 Relays crypto listings to discord.
 
 ## Setup
