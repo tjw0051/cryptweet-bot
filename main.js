@@ -82,6 +82,10 @@ bot.on('message', msg => {
 			msg.reply(`Broadcasting to this channel...`);
 			currentChannel = msg.channel;
 		}
+		else if(msg.content.includes('help')) {
+			msg.channel.send(`This bot is maintained by: @legen-waitforit-dary#9748`);
+			msg.channel.send(`Get the source at: https://github.com/tjw0051/cryptweet-bot`);
+		}
 	}
 });
 
