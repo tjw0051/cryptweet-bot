@@ -1,0 +1,3 @@
+deploy_secret.sh
+node_modules/
+node_modules/*
