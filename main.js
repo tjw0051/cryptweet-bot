@@ -42,6 +42,14 @@ twitterClient.stream('statuses/filter', {follow: followStr},  function(stream) {
 
 
 function filterMessage(tweet) {
+	if(tweet.in_reply_to_status_id != null || tweet.in_reply_to_user_id != null) {
+		return;
+	}
+
+	if(tweet.retweeted == true) {
+		return;	
+	}
+
 	let formattedMsg = tweet.text.toLowerCase();
 	triggerWords.forEach((el) => {
 		if(formattedMsg.includes(el)) {
@@ -72,6 +80,10 @@ bot.on('ready', () => {
 	console.log('Channels found: ');
 	bot.channels.forEach(function(channel) {
 		console.log('Channel: ' + channel.id);
+		if(channel.id == '377590329374801931') {
+			currentChannel = channel;
+			console.log('Focusing on channel ' + channel.id);
+		}
 	});
 });
 
