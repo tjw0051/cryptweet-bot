@@ -43,6 +43,7 @@ twitterClient.stream('statuses/filter', {follow: followStr},  function(stream) {
 
 
 function filterMessage(tweet) {
+	console.log(JSON.stringify(tweet));
 	if(tweet.in_reply_to_status_id != null || tweet.in_reply_to_user_id != null) {
 		return;
 	}
@@ -54,7 +55,7 @@ function filterMessage(tweet) {
 	let formattedMsg = tweet.text.toLowerCase();
 	triggerWords.forEach((el) => {
 		if(formattedMsg.includes(el)) {
-			broadcastTweet(tweet);
+			//broadcastTweet(tweet);
 			return;
 		}
 	});
