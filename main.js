@@ -7,13 +7,14 @@ let twitterConsumerSecret = process.env.TWITTER_CONSUMER_SECRET;
 let twitterTokenKey = process.env.TWITTER_TOKEN_KEY;
 let twitterTokenSecret = process.env.TWITTER_TOKEN_SECRET;
 
-let triggerWords = ['adds', 'lists', 'live'];
+let triggerWords = ['adds', 'lists', 'live', 'communitycoin'];
 // @binance_2017, @bithumbofficial, @bitfinex, @richiela, testaccount
 let accounts = ['877807935493033984', '908496633196814337', '886832413', '16324992', '928316238186598400'];
 
 var bot = new Discord.Client();
 var twitterClient;
 let currentChannel;
+let testChannel;
 
 connect();
 
@@ -65,12 +66,22 @@ function broadcastTweet(tweet) {
 	msg += ' - \"';
 	msg += tweet.text;
 	msg += '\" - https://twitter.com/' + tweet.user.screen_name + '/status/' + tweet.id_str;
-	say(msg);
+	
+	say(msg, 'live');
 }
 
-function say(message) {
-	if(currentChannel != null) {
-		currentChannel.sendMessage(message);
+function say(message, channel) {
+	switch(channel) {
+		case 'live':
+			if(currentChannel != null) {
+				currentChannel.sendMessage(message);
+			}
+		break;
+		case 'test':
+			if(testChannel != null) {
+				testChannel.say(message);
+			}
+		break;
 	}
 }
 
@@ -83,6 +94,10 @@ bot.on('ready', () => {
 		if(channel.id == '377590329374801931') {
 			currentChannel = channel;
 			console.log('Focusing on channel ' + channel.id);
+		}
+		if(channel.id == '265296777656270848') {
+			testChannel = channel;
+			console.log('Joined test channel ' + channel.id);
 		}
 	});
 });
