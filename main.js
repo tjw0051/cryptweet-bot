@@ -10,6 +10,7 @@ let twitterTokenSecret = process.env.TWITTER_TOKEN_SECRET;
 let triggerWords = ['adds', 'lists', 'live', 'communitycoin'];
 // @binance_2017, @bithumbofficial, @bitfinex, @richiela, testaccount
 let accounts = ['877807935493033984', '908496633196814337', '886832413', '16324992', '928316238186598400'];
+let testAccount = '928316238186598400';
 
 var bot = new Discord.Client();
 var twitterClient;
@@ -48,27 +49,33 @@ function filterMessage(tweet) {
 		return;
 	}
 
-	if(tweet.retweeted == true) {
+	if(tweet.retweeted == true || tweet.retweeted_status != null) {
 		return;	
 	}
 
 	let formattedMsg = tweet.text.toLowerCase();
 	triggerWords.forEach((el) => {
 		if(formattedMsg.includes(el)) {
-			//broadcastTweet(tweet);
+			let formattedBroadcast = formatMessage(tweet.user.screen_name, tweet.text, tweet.id_str);
+			broadcastTweet(formattedBroadcast, tweet.user.id_str);
 			return;
 		}
 	});
 }
 
-function broadcastTweet(tweet) {
-	//console.log(JSON.stringify(tweet));
-	let msg = '@' + tweet.user.screen_name;
+function formatMessage(screenName, text, tweetId) {
+	let msg = '@' + screenName;
 	msg += ' - \"';
-	msg += tweet.text;
-	msg += '\" - https://twitter.com/' + tweet.user.screen_name + '/status/' + tweet.id_str;
-	
-	say(msg, 'live');
+	msg += text;
+	msg += '\" - https://twitter.com/' + screenName + '/status/' + tweetId;
+}
+
+function broadcastTweet(message, userId) {
+	if(userId == testAccount) {
+		say(message, 'test');
+	} else {
+		say(message, 'live');
+	}
 }
 
 function say(message, channel) {
@@ -94,7 +101,7 @@ bot.on('ready', () => {
 		console.log('Channel: ' + channel.id);
 		if(channel.id == '377590329374801931') {
 			currentChannel = channel;
-			console.log('Focusing on channel ' + channel.id);
+			console.log('Broadcasting on channel ' + channel.id);
 		}
 		if(channel.id == '265296777656270848') {
 			testChannel = channel;
@@ -104,15 +111,35 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
-	if(msg.content.startsWith('/cryptweet')) {
-		if(msg.content.includes('focus')) {
-			console.log(`Focus on channel: ` + msg.channel.id);
-			msg.reply(`Broadcasting to this channel...`);
-			currentChannel = msg.channel;
-		}
-		else if(msg.content.includes('help')) {
-			msg.channel.send(`This bot is maintained by: @legen-waitforit-dary#9748`);
-			msg.channel.send(`Get the source at: https://github.com/tjw0051/cryptweet-bot`);
+	let splitMsg = msg.content.split(' ');
+	if(splitMsg.length < 2) {
+		return;
+	}
+	if(splitMsg[0] == '/cryptweet') {
+		switch(splitMsg[1]) {
+			case 'focus': 
+				console.log(`Focus on channel: ` + msg.channel.id);
+				msg.reply(`Broadcasting to this channel...`);
+				currentChannel = msg.channel;
+			break;
+			case 'help':
+				msg.channel.send(`This bot is maintained by: @legen-waitforit-dary#9748`);
+				msg.channel.send(`Get the source at: https://github.com/tjw0051/cryptweet-bot`);
+			break;
+			case 'manual':
+				let cleanMsg = msg.content.replace('manual', '');
+				cleanMsg = cleanMsg.replace('/cryptweet', '');
+				cleanMsg = cleanMsg.trim();
+				try {
+					let json = JSON.parse(cleanMsg);
+					console.log('broadcasting tweet manually...');
+					msg.reply('Broadcasting message manually...');
+					broadcastTweet(formatMessage(json.screenName, json.text, json.tweetId), '0');
+				} catch(e) {
+					console.log('Error: badly formatted JSON.');
+					msg.reply('Error: badly formatted JSON.');
+				}
+			break;
 		}
 	}
 });
