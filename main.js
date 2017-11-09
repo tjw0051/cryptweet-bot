@@ -68,6 +68,7 @@ function formatMessage(screenName, text, tweetId) {
 	msg += ' - \"';
 	msg += text;
 	msg += '\" - https://twitter.com/' + screenName + '/status/' + tweetId;
+	return msg;
 }
 
 function broadcastTweet(message, userId) {
