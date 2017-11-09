@@ -132,6 +132,7 @@ bot.on('message', msg => {
 				cleanMsg = cleanMsg.trim();
 				try {
 					let json = JSON.parse(cleanMsg);
+					console.log(JSON.stringify(json));
 					console.log('broadcasting tweet manually...');
 					msg.reply('Broadcasting message manually...');
 					broadcastTweet(formatMessage(json.screenName, json.text, json.tweetId), '0');
