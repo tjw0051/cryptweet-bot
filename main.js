@@ -56,8 +56,12 @@ function filterMessage(tweet) {
 	let formattedMsg = tweet.text.toLowerCase();
 	triggerWords.forEach((el) => {
 		if(formattedMsg.includes(el)) {
-			let formattedBroadcast = formatMessage(tweet.user.screen_name, tweet.text, tweet.id_str);
-			broadcastTweet(formattedBroadcast, tweet.user.id_str);
+			let formatMsg = formatRichMessage(tweet);
+			if(tweet.user.id_str == testAccount) {
+				broadcastRichTweet(formatMsg, 'test');
+			} else {
+				broadcastRichTweet(formatMsg, 'live');
+			}
 			return;
 		}
 	});
@@ -69,6 +73,47 @@ function formatMessage(screenName, text, tweetId) {
 	msg += text;
 	msg += '\" - https://twitter.com/' + screenName + '/status/' + tweetId;
 	return msg;
+}
+
+function formatRichMessage(tweet) {
+	let name = tweet.user.screen_name;
+	let prettyName = '@' + name;
+	let text = tweet.text;
+	let prettyText = `"${text}"`; 
+	let tweetId = tweet.id_str;
+	let userImg = tweet.user.profile_image_url;
+	let userUrl = 'https://twitter.com/' + name;
+	let tweetUrl = 'https://twitter.com/' + name + '/status/' + tweetId;
+
+	let richEmbed = new Discord.RichEmbed({
+			//title: 'title',
+			description: prettyText,
+			author: {
+				name: prettyName,
+				url: userUrl,
+				icon_url: twitterImg
+			},
+			thumbnail: {
+				url: userImg,
+				height: 20,
+				width: 20
+			},
+			footer: {
+				text: tweetUrl,
+				icon_url: twitterImg
+			}
+	});
+	richEmbed.setColor('GREEN');
+	return richEmbed;
+}
+
+function broadcastRichTweet(richTweet, channel) {
+	if(channel == 'live' && currentChannel != null) {
+		currentChannel.send('', { embed: richTweet });
+	}
+	if(channel == 'test' && testChannel != null) {
+		testChannel.send('', { embed: richTweet });
+	}
 }
 
 function broadcastTweet(message, userId) {
@@ -144,40 +189,49 @@ bot.on('message', msg => {
 			break;
 			new Discord.RichEmbed()
 			case 'example':
-				let msgEmbed = new Discord.RichEmbed({
-					title: 'title',
-					description: 'description',
-					url: 'https://example.com',
-					
-					fields: [{
-						name: 'field 1',
-						value: 'value 1',
-						inline: true
-					}],
-					author: {
-						name: 'author',
-						url: 'https://example.com',
-						icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
+				let msgEmbed = formatRichMessage({
+					user: {
+						screen_name: '@legendex_2017',
+						profile_image_url: 'https://pbs.twimg.com/profile_images/877809641375137792/397UDjy4_bigger.jpg'
 					},
-					thumbnail: {
-						url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
-						height: 20,
-						width: 20
-					},
-					image: {
-						url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
-						height: 100,
-						width: 100
-					},
-					footer: {
-						text: 'footer',
-						icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
-					}
+					text: '#legendex_2017 Lists $BTC',
+					id_str: '929020557797896194',
 				});
-				msgEmbed.setColor('GREEN');
 				msg.channel.send('', { embed: msgEmbed });
 			break;
 		}
 	}
 });
+
+const twitterImg = 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png';
+const exampleEmbed = {
+	title: 'title',
+	description: 'description',
+	url: 'https://example.com',
+	
+	fields: [{
+		name: 'field 1',
+		value: 'value 1',
+		inline: true
+	}],
+	author: {
+		name: 'author',
+		url: 'https://example.com',
+		icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
+	},
+	thumbnail: {
+		url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
+		height: 20,
+		width: 20
+	},
+	image: {
+		url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
+		height: 100,
+		width: 100
+	},
+	footer: {
+		text: 'footer',
+		icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
+	}
+};
 
