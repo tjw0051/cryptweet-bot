@@ -104,6 +104,7 @@ function formatRichMessage(tweet) {
 			}
 	});
 	richEmbed.setColor('GREEN');
+	richEmbed.setURL(tweetUrl);
 	return richEmbed;
 }
 
@@ -187,11 +188,10 @@ bot.on('message', msg => {
 					msg.reply('Error: badly formatted JSON.');
 				}
 			break;
-			new Discord.RichEmbed()
 			case 'example':
 				let msgEmbed = formatRichMessage({
 					user: {
-						screen_name: '@legendex_2017',
+						screen_name: 'legendex_2017',
 						profile_image_url: 'https://pbs.twimg.com/profile_images/877809641375137792/397UDjy4_bigger.jpg'
 					},
 					text: '#legendex_2017 Lists $BTC',
