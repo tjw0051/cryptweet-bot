@@ -147,7 +147,6 @@ bot.on('message', msg => {
 					title: 'title',
 					description: 'description',
 					url: 'https://example.com',
-					color: 'green',
 					fields: {
 						name: 'field 1',
 						value: 'value 1',
@@ -172,6 +171,7 @@ bot.on('message', msg => {
 						icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
 					}
 				});
+				msgEmbed.setColor('GREEN');
 				msg.channel.send('', { embed: msgEmbed });
 			break;
 		}
