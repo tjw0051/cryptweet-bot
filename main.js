@@ -142,15 +142,18 @@ bot.on('message', msg => {
 					msg.reply('Error: badly formatted JSON.');
 				}
 			break;
+			new Discord.RichEmbed()
 			case 'example':
 				let msgEmbed = new Discord.RichEmbed({
 					title: 'title',
 					description: 'description',
 					url: 'https://example.com',
-					fields: {
+					
+					fields: [{
 						name: 'field 1',
 						value: 'value 1',
-					},
+						inline: true
+					}],
 					author: {
 						name: 'author',
 						url: 'https://example.com',
