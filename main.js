@@ -142,6 +142,38 @@ bot.on('message', msg => {
 					msg.reply('Error: badly formatted JSON.');
 				}
 			break;
+			case 'example':
+				let msgEmbed = new Discord.RichEmbed({
+					title: 'title',
+					description: 'description',
+					url: 'https://example.com',
+					color: 'green',
+					fields: {
+						name: 'field 1',
+						value: 'value 1',
+					},
+					author: {
+						name: 'author',
+						url: 'https://example.com',
+						icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
+					},
+					thumbnail: {
+						url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
+						height: 20,
+						width: 20
+					},
+					image: {
+						url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png',
+						height: 100,
+						width: 100
+					},
+					footer: {
+						text: 'footer',
+						icon_url: 'https://cdn1.iconfinder.com/data/icons/iconza-circle-social/64/697029-twitter-512.png'
+					}
+				});
+				msg.channel.send('', { embed: msgEmbed });
+			break;
 		}
 	}
 });
