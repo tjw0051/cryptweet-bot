@@ -23,14 +23,7 @@ connect();
 
 function connect() {
 	bot.login(discordToken);
-	bot.user.setGame('Twitter');
-	bot.user.setUsername('Cryptweet-Bot')
-		.then((user) => {
-			console.log('Username set.');
-		})
-		.catch((error) => {
-			console.log(error);
-		});
+	
 	twitterClient = new Twitter({
 		consumer_key: twitterConsumerKey,
 		consumer_secret: twitterConsumerSecret,
@@ -199,6 +192,14 @@ function say(message, channel) {
 // Set up
 bot.on('ready', () => {
 	console.log('Discord Connected.');
+	bot.user.setGame('Twitter');
+	bot.user.setUsername('Cryptweet-Bot')
+		.then((user) => {
+			console.log('Username set.');
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 	console.log('Channels found: ');
 	bot.channels.forEach(function(channel) {
 		console.log('Channel: ' + channel.id);
