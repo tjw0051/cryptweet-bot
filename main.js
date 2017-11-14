@@ -7,9 +7,11 @@ let twitterConsumerSecret = process.env.TWITTER_CONSUMER_SECRET;
 let twitterTokenKey = process.env.TWITTER_TOKEN_KEY;
 let twitterTokenSecret = process.env.TWITTER_TOKEN_SECRET;
 
-let triggerWords = ['adds', 'lists', 'live', 'communitycoin'];
-// @binance_2017, @bithumbofficial, @bitfinex, @richiela, testaccount
-let accounts = ['877807935493033984', '908496633196814337', '886832413', '16324992', '928316238186598400'];
+const cashtagRegex = /\$[A-Z]{2,10}/g;
+
+let triggerWords = ['adds', 'lists', 'live', 'communitycoin', 'market added', 'markets added'];
+// @hitbtc, @poloniex, @binance_2017, @bithumbofficial, @bitfinex, @richiela, testaccount
+let accounts = ['1364642054', '2288889440', '877807935493033984', '908496633196814337', '886832413', '16324992', '928316238186598400'];
 let testAccount = '928316238186598400';
 
 var bot = new Discord.Client();
@@ -21,6 +23,14 @@ connect();
 
 function connect() {
 	bot.login(discordToken);
+	bot.user.setGame('Twitter');
+	bot.user.setUsername('Cryptweet-Bot')
+		.then((user) => {
+			console.log('Username set.');
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 	twitterClient = new Twitter({
 		consumer_key: twitterConsumerKey,
 		consumer_secret: twitterConsumerSecret,
@@ -34,7 +44,7 @@ let followStr = accounts.join(',');
 twitterClient.stream('statuses/filter', {follow: followStr},  function(stream) {
 	stream.on('data', function(tweet) {
 	  console.log('Tweet: ' + tweet.text);
-	  filterMessage(tweet);
+	  await filterMessage(tweet);
 	});
   
 	stream.on('error', function(error) {
@@ -43,14 +53,33 @@ twitterClient.stream('statuses/filter', {follow: followStr},  function(stream) {
   });
 
 
-function filterMessage(tweet) {
-	console.log(JSON.stringify(tweet));
+async function filterMessage(tweet) {
+	//console.log(JSON.stringify(tweet));
+
 	if(tweet.in_reply_to_status_id != null || tweet.in_reply_to_user_id != null) {
 		return;
 	}
 
 	if(tweet.retweeted == true || tweet.retweeted_status != null) {
+		if(tweet.user.id_str == '1364642054') { // @hitbtc retweets official announcements
+			let formatMsg = formatRichMessage(tweet);
+			broadcastRichTweet(formatMsg, 'live');
+		}
 		return;	
+	}
+
+	// @richiela
+	if(tweet.user.id_str == '16324992') {
+		let cashtagMatches = tweet.text.match(cashtagRegex);
+		if(tweet.text.includes('@BittrexExchange') &&
+			cashtagMatches != null) {
+				let listed = await alreadyListed(cashtagMatches[0])
+				if(!listed) {
+					let formatMsg = formatRichMessage(tweet);
+					broadcastRichTweet(formatMsg, 'live');
+				}
+				return;
+			}
 	}
 
 	let formattedMsg = tweet.text.toLowerCase();
@@ -108,6 +137,32 @@ function formatRichMessage(tweet) {
 	return richEmbed;
 }
 
+async function alreadyListed(cashtag) {
+	if(cashtag == null) return false;
+
+	let listings = await fetch('https://bittrex.com/api/v1.1/public/getmarkets')
+		.catch((error) => {
+			console.log('Error fetching listings.');
+			return false;
+		});
+	let listingsJson = await listings.json().catch((error) => {
+		console.log('Error parsing listings JSON');
+		return false;
+	});
+	for(let i = 0; i < listingsJson.result.length; i++) {
+		if(listingsJson.result[i].MarketCurrency.toLowerCase() == cashtag) {
+			let currentDate = new Date().toISOString().slice(0, 10);
+			let listingCreatedDate = listingsJson.result[i].Created;
+			// listing not created today - not new
+			if(!listingCreatedDate.startsWith(currentDate)) {
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
 function broadcastRichTweet(richTweet, channel) {
 	if(channel == 'live' && currentChannel != null) {
 		currentChannel.send('', { embed: richTweet });
@@ -129,6 +184,7 @@ function say(message, channel) {
 	switch(channel) {
 		case 'live':
 			if(currentChannel != null) {
+				console.log('Broadcasting...');
 				currentChannel.sendMessage(message);
 			}
 		break;
@@ -179,7 +235,6 @@ bot.on('message', msg => {
 				cleanMsg = cleanMsg.trim();
 				try {
 					let json = JSON.parse(cleanMsg);
-					console.log(JSON.stringify(json));
 					console.log('broadcasting tweet manually...');
 					msg.reply('Broadcasting message manually...');
 					broadcastTweet(formatMessage(json.screenName, json.text, json.tweetId), '0');

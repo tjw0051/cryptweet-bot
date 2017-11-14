@@ -2,7 +2,7 @@ version: "3"
 services:
     mot-history-server:
         build: .
-        image: cryptweet-bot:1.0.17
+        image: cryptweet-bot:1.0.18
         environment:
             - DISCORD_TOKEN=${DISCORD_TOKEN}
             - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
