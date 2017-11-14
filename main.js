@@ -44,7 +44,7 @@ let followStr = accounts.join(',');
 twitterClient.stream('statuses/filter', {follow: followStr},  function(stream) {
 	stream.on('data', function(tweet) {
 	  console.log('Tweet: ' + tweet.text);
-	  await filterMessage(tweet);
+	  filterMessage(tweet);
 	});
   
 	stream.on('error', function(error) {
